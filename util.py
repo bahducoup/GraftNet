@@ -2,6 +2,7 @@ import yaml
 import torch
 import os
 import json
+from pprint import pprint
 import pickle
 import nltk
 import numpy as np
@@ -12,7 +13,7 @@ from tqdm import tqdm
 
 def get_config(config_path="config.yml"):
     with open(config_path, "r") as setting:
-        config = yaml.load(setting)
+        config = yaml.load(setting, yaml.Loader)
     return config
 
 def use_cuda(var):
@@ -38,12 +39,12 @@ def load_dict(filename):
     word2id = dict()
     with open(filename) as f_in:
         for line in f_in:
-            word = line.strip().decode('UTF-8')
+            word = line.strip()
             word2id[word] = len(word2id)
     return word2id
 
 def load_documents(document_file):
-    print('loading document from', document_file)
+    print('loading document from', document_file)  # documents.json
     documents = dict()
     with open(document_file) as f_in:
         for line in tqdm(f_in):
@@ -56,6 +57,19 @@ def load_documents(document_file):
             else:
                 passage['tokens'] = document_token
             documents[int(passage['documentId'])] = passage
+    '''
+    {
+        id: {
+                'documentId': id,
+                'document': {
+                    'entities': [],
+                    'text': 'Doing what we do ...'
+                }
+                'tokens': ['Doing', 'what', 'we', ...]
+            },
+        ...
+    }
+    '''
     return documents
 
 def index_document_entities(documents, word2id, entity2id, max_document_word):
